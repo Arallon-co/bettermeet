@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Poll {
+  id                String        @id @default(cuid())
+  title             String        @db.VarChar(255)
+  description       String?       @db.Text
+  organizerTimezone String        @map("organizer_timezone") @db.VarChar(50)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
+  timeSlots         TimeSlot[]
+  participants      Participant[]
+  
+  @@map("polls")
+}
+
+model TimeSlot {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  date      DateTime @db.Date
+  startTime String   @map("start_time") @db.VarChar(5) // HH:MM format
+  endTime   String   @map("end_time") @db.VarChar(5)   // HH:MM format
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  poll         Poll           @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  availability Availability[]
+  
+  @@index([pollId])
+  @@index([date])
+  @@map("time_slots")
+}
+
+model Participant {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  name      String   @db.VarChar(255)
+  email     String?  @db.VarChar(255)
+  timezone  String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  poll         Poll           @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  availability Availability[]
+  
+  @@index([pollId])
+  @@unique([pollId, email])
+  @@map("participants")
+}
+
+model Availability {
+  id            String   @id @default(cuid())
+  participantId String   @map("participant_id")
+  timeSlotId    String   @map("time_slot_id")
+  isAvailable   Boolean  @default(false) @map("is_available")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  timeSlot    TimeSlot    @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
+  
+  @@unique([participantId, timeSlotId])
+  @@index([timeSlotId])
+  @@index([participantId])
+  @@map("availability")
+}

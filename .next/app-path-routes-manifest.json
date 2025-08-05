@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/polls/[id]/route": "/api/polls/[id]",
+  "/api/polls/[id]/vote/route": "/api/polls/[id]/vote",
+  "/api/polls/route": "/api/polls",
+  "/poll/[id]/page": "/poll/[id]",
+  "/create/page": "/create",
+  "/page": "/",
+  "/poll/[id]/timezone/page": "/poll/[id]/timezone"
+}
