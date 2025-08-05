@@ -11,18 +11,18 @@ This project uses multiple layers of testing and validation before deployment to
 - **Type Checking**: TypeScript compiler validates types
 - **Tests**: Jest runs all unit and integration tests
 
-### 2. GitHub Actions CI/CD
+### 2. GitHub Actions CI
 - **Triggers**: Runs on push to `main`/`develop` and all pull requests
 - **Matrix Testing**: Tests against Node.js 18.x and 20.x
 - **Coverage**: Generates test coverage reports
 - **Build Validation**: Ensures the app builds successfully
-- **Sequential Jobs**: Tests must pass before build, build must pass before deployment
+- **Sequential Jobs**: Tests must pass before build can run
 
-### 3. Vercel Deployment
-- **Automated**: Only deploys to production after all tests and build pass
-- **Environment Variables**: Securely managed through Vercel dashboard
-- **Preview Deployments**: Every PR gets a preview deployment after tests pass
-- **Production**: Automatic deployment on merge to main (only after CI passes)
+### 3. Vercel Deployment (Automatic)
+- **Git Integration**: Vercel automatically deploys when code is pushed
+- **Preview Deployments**: Every PR gets a preview deployment
+- **Production**: Automatic deployment on merge to main
+- **Environment Variables**: Managed through Vercel dashboard
 
 ## 🛠️ Setup Instructions
 
@@ -38,9 +38,6 @@ This project uses multiple layers of testing and validation before deployment to
    ```
    DATABASE_URL=your_database_url
    CODECOV_TOKEN=your_codecov_token (optional)
-   VERCEL_TOKEN=your_vercel_token
-   VERCEL_ORG_ID=your_org_id
-   VERCEL_PROJECT_ID=your_project_id
    ```
 
 ### Vercel Setup
@@ -59,11 +56,10 @@ This project uses multiple layers of testing and validation before deployment to
    - Build Command: `prisma generate && next build`
    - Install Command: `npm ci`
 
-4. **Get Vercel Integration Secrets**:
-   Required for GitHub Actions deployment:
-   - **Token**: Vercel Dashboard → Settings → Tokens
-   - **Org ID**: Vercel Dashboard → Settings → General  
-   - **Project ID**: Project Settings → General
+4. **Automatic Deployments**:
+   - Vercel will automatically deploy when you push to main
+   - Preview deployments are created for all pull requests
+   - No additional configuration needed
 
 ## 📋 Available Scripts
 
