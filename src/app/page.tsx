@@ -2,265 +2,197 @@
 
 import React from 'react';
 import ResponsiveLayout from '@/components/ResponsiveLayout';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { ErrorDisplay } from '@/components/ErrorBoundary';
-import { useToast } from '@/components/ToastProvider';
-import { TimezoneSelector } from '@/components/TimezoneSelector';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Input,
-  Chip,
-} from '@nextui-org/react';
+import { Button } from '@nextui-org/react';
+import Link from 'next/link';
 import {
   CalendarIcon,
   ClockIcon,
   GlobeAltIcon,
-  DevicePhoneMobileIcon,
-  BoltIcon,
   UserGroupIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function Home() {
-  const [selectedTimezone, setSelectedTimezone] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [showError, setShowError] = React.useState(false);
-  const toast = useToast();
-
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.showSuccess('Welcome to BetterMeet!');
-    }, 2000);
-  };
-
-  const showToastExamples = () => {
-    toast.showInfo('This is an info message');
-    setTimeout(() => toast.showWarning('This is a warning'), 500);
-    setTimeout(() => toast.showError('This is an error message'), 1000);
-  };
-
   const features = [
     {
       icon: GlobeAltIcon,
       title: 'Timezone Smart',
       description:
         'Automatic timezone detection and conversion for seamless global scheduling.',
-      color: 'primary',
-    },
-    {
-      icon: DevicePhoneMobileIcon,
-      title: 'Mobile First',
-      description:
-        'Optimized for touch interactions with responsive design across all devices.',
-      color: 'success',
-    },
-    {
-      icon: BoltIcon,
-      title: 'Fast & Reliable',
-      description:
-        'Built with Next.js and modern React patterns for optimal performance.',
-      color: 'warning',
     },
     {
       icon: UserGroupIcon,
       title: 'Team Friendly',
       description:
         'Easy sharing and collaboration features for teams of any size.',
-      color: 'secondary',
     },
+    {
+      icon: ClockIcon,
+      title: 'Quick Setup',
+      description:
+        'Create polls in seconds and get responses from your team instantly.',
+    },
+    {
+      icon: CalendarIcon,
+      title: 'Flexible Scheduling',
+      description:
+        'Support for date ranges, time slots, and multiple meeting options.',
+    },
+  ];
+
+  const benefits = [
+    'No account required to create polls',
+    'Real-time timezone conversion',
+    'Mobile-optimized interface',
+    'Instant sharing via links',
+    'Clean, intuitive design',
+    'Works across all devices',
   ];
 
   return (
     <ResponsiveLayout>
-      <div className="space-y-8">
+      <div className="min-h-screen flex flex-col">
         {/* Hero Section */}
-        <div className="text-center space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              BetterMeet
-            </h1>
-            <p className="text-lg sm:text-xl text-foreground-600 max-w-2xl mx-auto">
-              Smart scheduling across timezones with a mobile-optimized
-              interface
-            </p>
-          </div>
+        <section className="flex-1 flex items-center justify-center py-20">
+          <div className="text-center space-y-8 max-w-4xl mx-auto px-4">
+            {/* Main Headline */}
+            <div className="space-y-6">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent leading-tight">
+                Schedule Meetings
+                <br />
+                <span className="text-foreground">Without the Hassle</span>
+              </h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              color="primary"
-              size="lg"
-              href="/create"
-              className="min-h-[44px] px-8 text-white"
-            >
-              Create Poll
-            </Button>
-            <Button
-              color="default"
-              variant="bordered"
-              size="lg"
-              href="/about"
-              className="min-h-[44px] px-8"
-            >
-              Learn More
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Demo Form */}
-          <Card className="w-full">
-            <CardHeader className="pb-4">
-              <h2 className="text-xl font-semibold">Get Started</h2>
-              <p className="text-sm text-foreground-600">
-                Try out our responsive form components
+              <p className="text-xl sm:text-2xl text-foreground-600 max-w-3xl mx-auto leading-relaxed">
+                Create polls, share with your team, and find the perfect meeting
+                time across timezones. No more back-and-forth emails.
               </p>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <Input
-                label="Your Name"
-                placeholder="Enter your full name"
-                value={name}
-                onValueChange={setName}
-                isRequired
-                className="w-full"
-              />
+            </div>
 
-              <Input
-                label="Email Address"
-                placeholder="your@email.com"
-                type="email"
-                value={email}
-                onValueChange={setEmail}
-                isRequired
-                className="w-full"
-              />
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button
+                as={Link}
+                color="primary"
+                size="lg"
+                href="/create"
+                className="min-h-[56px] px-12 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-shadow"
+              >
+                Create Free Poll
+              </Button>
+              <Button
+                as={Link}
+                color="default"
+                variant="bordered"
+                size="lg"
+                href="#features"
+                className="min-h-[56px] px-12 text-lg font-semibold"
+              >
+                Learn More
+              </Button>
+            </div>
 
-              <TimezoneSelector
-                value={selectedTimezone}
-                onChange={setSelectedTimezone}
-                label="Your Timezone"
-                showCurrentTime
-                isRequired
-              />
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button
-                  variant="bordered"
-                  onPress={() => {
-                    setName('');
-                    setEmail('');
-                    setSelectedTimezone('');
-                  }}
-                  className="flex-1 min-h-[44px]"
-                >
-                  Clear
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={handleSubmit}
-                  isLoading={isLoading}
-                  isDisabled={!name || !email || !selectedTimezone}
-                  className="flex-1 min-h-[44px] text-white"
-                >
-                  {isLoading ? 'Creating Account...' : 'Get Started'}
-                </Button>
+            {/* Trust Indicators */}
+            <div className="pt-8">
+              <p className="text-sm text-foreground-500 mb-4">
+                Trusted by teams worldwide
+              </p>
+              <div className="flex flex-wrap justify-center gap-8 text-foreground-400">
+                <span className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-success-500" />
+                  No registration required
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-success-500" />
+                  Free forever
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-success-500" />
+                  Privacy focused
+                </span>
               </div>
-            </CardBody>
-          </Card>
-
-          {/* Component Showcase */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <h2 className="text-xl font-semibold">Component Showcase</h2>
-              </CardHeader>
-              <CardBody className="space-y-6">
-                <div>
-                  <h3 className="font-semibold mb-3">Loading States</h3>
-                  <LoadingSpinner size="sm" text="Small spinner" />
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Toast Notifications</h3>
-                  <Button
-                    onPress={showToastExamples}
-                    variant="bordered"
-                    className="min-h-[44px]"
-                  >
-                    Show Toast Examples
-                  </Button>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Error Handling</h3>
-                  <Button
-                    onPress={() => setShowError(!showError)}
-                    variant="bordered"
-                    color="danger"
-                    className="min-h-[44px]"
-                  >
-                    Toggle Error Display
-                  </Button>
-                  {showError && (
-                    <div className="mt-3">
-                      <ErrorDisplay
-                        error={new Error('This is a sample error message')}
-                        onRetry={() => setShowError(false)}
-                      />
-                    </div>
-                  )}
-                </div>
-              </CardBody>
-            </Card>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => (
-            <Card key={index} className="w-full">
-              <CardBody className="text-center space-y-3">
-                <div className="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center mx-auto">
-                  <feature.icon className="w-6 h-6 text-primary-600" />
+        {/* Features Section */}
+        <section
+          id="features"
+          className="py-20 bg-gradient-to-b from-background to-primary-50/20"
+        >
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+                Why Choose BetterMeet?
+              </h2>
+              <p className="text-lg text-foreground-600 max-w-2xl mx-auto">
+                Built for modern teams who need to schedule meetings quickly and
+                efficiently
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <div key={index} className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
+                    <feature.icon className="w-8 h-8 text-primary-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">
+                    {feature.title}
+                  </h3>
+                  <p className="text-foreground-600 leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-foreground">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-foreground-600">
-                  {feature.description}
-                </p>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        {/* CTA Section */}
-        <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 border-primary-200">
-          <CardBody className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-foreground">
-              Ready to get started?
+        {/* Benefits Section */}
+        <section className="py-20">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+                Everything You Need
+              </h2>
+              <p className="text-lg text-foreground-600">
+                All the features you need to schedule meetings like a pro
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <CheckCircleIcon className="w-6 h-6 text-success-500 flex-shrink-0" />
+                  <span className="text-foreground-700">{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-primary-50 to-secondary-50">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Ready to Simplify Your Scheduling?
             </h2>
-            <p className="text-foreground-600 max-w-md mx-auto">
-              Create your first poll and experience the power of smart
-              scheduling
+            <p className="text-lg text-foreground-600 mb-8 max-w-2xl mx-auto">
+              Join thousands of teams who&apos;ve already made the switch to
+              BetterMeet. Create your first poll in under 30 seconds.
             </p>
             <Button
+              as={Link}
               color="primary"
               size="lg"
               href="/create"
-              className="min-h-[44px] px-8 text-white"
+              className="min-h-[56px] px-12 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-shadow"
             >
-              Create Your First Poll
+              Get Started Now - It&apos;s Free
             </Button>
-          </CardBody>
-        </Card>
+          </div>
+        </section>
       </div>
     </ResponsiveLayout>
   );

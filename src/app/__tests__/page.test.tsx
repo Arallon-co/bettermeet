@@ -43,7 +43,7 @@ describe('Home', () => {
     render(<Home />, { wrapper: Wrapper });
 
     const heading = screen.getByRole('heading', {
-      name: /bettermeet/i,
+      name: /schedule meetings without the hassle/i,
     });
 
     expect(heading).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('Home', () => {
   it('renders the subtitle', () => {
     render(<Home />, { wrapper: Wrapper });
 
-    const subtitle = screen.getByText(/smart scheduling across timezones/i);
+    const subtitle = screen.getByText(/create polls, share with your team/i);
 
     expect(subtitle).toBeInTheDocument();
   });
@@ -60,7 +60,9 @@ describe('Home', () => {
   it('renders action buttons', () => {
     render(<Home />, { wrapper: Wrapper });
 
-    const createButton = screen.getByRole('button', { name: /create poll/i });
+    const createButton = screen.getByRole('button', {
+      name: /create free poll/i,
+    });
     const learnMoreButton = screen.getByRole('button', { name: /learn more/i });
 
     expect(createButton).toBeInTheDocument();

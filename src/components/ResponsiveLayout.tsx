@@ -29,7 +29,7 @@ export default function ResponsiveLayout({
 
   const menuItems = [
     { name: 'Create Poll', href: '/create' },
-    { name: 'About', href: '/about' },
+    { name: 'Features', href: '/#features' },
   ];
 
   const toggleTheme = () => {

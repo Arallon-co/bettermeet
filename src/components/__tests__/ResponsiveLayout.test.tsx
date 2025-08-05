@@ -128,7 +128,7 @@ describe('ResponsiveLayout', () => {
     );
 
     expect(screen.getAllByText('Create Poll')).toHaveLength(2); // Desktop and mobile menu
-    expect(screen.getAllByText('About')).toHaveLength(2); // Desktop and mobile menu
+    expect(screen.getAllByText('Features')).toHaveLength(2); // Desktop and mobile menu
   });
 
   it('applies responsive classes correctly', () => {
