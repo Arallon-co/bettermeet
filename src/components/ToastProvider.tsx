@@ -33,9 +33,8 @@ export function ToastProvider({ children }: ToastProviderProps) {
       message: string,
       type: 'success' | 'error' | 'warning' | 'info' = 'info'
     ) => {
-      // For now, use console.log and alert as fallback
-      // TODO: Implement proper toast system when HeroUI toast is available
-      console.log(`[${type.toUpperCase()}] ${message}`);
+      // For now, use alert as fallback
+      // TODO: Implement proper toast system when NextUI toast is available
 
       // Show alert for errors
       if (type === 'error') {

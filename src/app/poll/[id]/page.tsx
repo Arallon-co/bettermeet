@@ -102,9 +102,6 @@ function PollPageContent({ id }: { id: string }) {
         ? `/api/polls/${id}?timezone=${encodeURIComponent(participantTimezone)}`
         : `/api/polls/${id}`;
 
-      console.log('Fetching poll with URL:', url);
-      console.log('Participant timezone:', participantTimezone);
-
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -112,8 +109,6 @@ function PollPageContent({ id }: { id: string }) {
       }
 
       const data = await response.json();
-      console.log('Poll data received:', data);
-      console.log('Time slots count:', data.timeSlots?.length || 0);
 
       setPoll(data);
     } catch (err) {

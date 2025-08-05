@@ -33,22 +33,12 @@ export async function GET(
 
     if (participantTimezone && participantTimezone !== poll.organizerTimezone) {
       try {
-        console.log(
-          'Converting time slots from',
-          poll.organizerTimezone,
-          'to',
-          participantTimezone
-        );
-        console.log('Original time slots:', convertedTimeSlots.length);
-
         // Convert time slots to participant's timezone, keeping only business hours
         const businessHoursSlots = convertBusinessHoursTimeSlots(
           convertedTimeSlots,
           poll.organizerTimezone,
           participantTimezone
         );
-
-        console.log('Converted time slots:', businessHoursSlots.length);
 
         // Create a mapping of original slots to converted slots
         const originalSlotMap = new Map();
@@ -69,8 +59,6 @@ export async function GET(
             endTime: slot.endTime,
           };
         });
-
-        console.log('Final converted time slots:', convertedTimeSlots.length);
       } catch (error) {
         console.error('Error converting time slots for timezone:', error);
         // Fall back to original time slots if conversion fails
