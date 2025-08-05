@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isValid, parseISO, isFuture } from 'date-fns';
+import { isValid, parseISO, isFuture, startOfDay, isAfter } from 'date-fns';
 
 // Timezone validation - basic check for valid timezone format
 const timezoneSchema = z.string().refine(
@@ -28,13 +28,17 @@ const dateSchema = z.string().refine(
   { message: 'Invalid date format' }
 );
 
-// Future date validation
+// Future date validation (including today)
 const futureDateSchema = z.string().refine(
   (date) => {
     const parsed = parseISO(date);
-    return isValid(parsed) && isFuture(parsed);
+    const today = startOfDay(new Date());
+    return (
+      isValid(parsed) &&
+      (isAfter(parsed, today) || parsed.getTime() === today.getTime())
+    );
   },
-  { message: 'Date must be in the future' }
+  { message: 'Date must be today or in the future' }
 );
 
 // Time slot validation

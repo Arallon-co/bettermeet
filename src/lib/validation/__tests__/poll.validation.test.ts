@@ -86,12 +86,12 @@ describe('Poll Validation', () => {
       });
       expect(result.success).toBe(false);
       if (!result.success) {
-        // The error could be either "Invalid date format" or "Date must be in the future"
+        // The error could be either "Invalid date format" or "Date must be today or in the future"
         // depending on which validation runs first
         const hasDateError = result.error.issues.some(
           (issue) =>
             issue.message === 'Invalid date format' ||
-            issue.message === 'Date must be in the future'
+            issue.message === 'Date must be today or in the future'
         );
         expect(hasDateError).toBe(true);
       }
