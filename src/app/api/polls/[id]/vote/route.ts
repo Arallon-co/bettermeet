@@ -28,14 +28,34 @@ export async function POST(
       body.selectedSlots?.map((slotKey: string) => {
         // Find the corresponding time slot ID
         const [date, startTime] = slotKey.split('-');
-        const timeSlot = poll.timeSlots.find(
-          (slot) =>
-            slot.date.toISOString().split('T')[0] === date &&
-            slot.startTime === startTime
+
+        // Debug logging
+        console.log('Looking for slot:', { date, startTime });
+        console.log(
+          'Available time slots:',
+          poll.timeSlots.map((slot) => ({
+            id: slot.id,
+            date: slot.date.toISOString().split('T')[0],
+            startTime: slot.startTime,
+          }))
         );
 
+        const timeSlot = poll.timeSlots.find((slot) => {
+          // Compare dates by converting both to YYYY-MM-DD format
+          const slotDateStr = slot.date.toISOString().split('T')[0];
+          const requestedDateStr = date;
+
+          return (
+            slotDateStr === requestedDateStr && slot.startTime === startTime
+          );
+        });
+
+        if (!timeSlot) {
+          throw new Error(`Time slot not found for key: ${slotKey}`);
+        }
+
         return {
-          timeSlotId: timeSlot?.id || slotKey, // Use slot ID if found, otherwise use the key
+          timeSlotId: timeSlot.id,
           isAvailable: true,
         };
       }) || [];
