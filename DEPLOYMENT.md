@@ -2,6 +2,8 @@
 
 This project uses multiple layers of testing and validation before deployment to ensure code quality.
 
+<!-- Testing CI/CD pipeline -->
+
 ## 🚀 Deployment Pipeline
 
 ### 1. Local Development (Pre-commit Hooks)
