@@ -14,12 +14,13 @@ This project uses multiple layers of testing and validation before deployment to
 - **Matrix Testing**: Tests against Node.js 18.x and 20.x
 - **Coverage**: Generates test coverage reports
 - **Build Validation**: Ensures the app builds successfully
+- **Sequential Jobs**: Tests must pass before build, build must pass before deployment
 
 ### 3. Vercel Deployment
-- **Test Integration**: Tests run as part of the build command
+- **Automated**: Only deploys to production after all tests and build pass
 - **Environment Variables**: Securely managed through Vercel dashboard
-- **Preview Deployments**: Every PR gets a preview deployment
-- **Production**: Automatic deployment on merge to main
+- **Preview Deployments**: Every PR gets a preview deployment after tests pass
+- **Production**: Automatic deployment on merge to main (only after CI passes)
 
 ## 🛠️ Setup Instructions
 
@@ -35,6 +36,9 @@ This project uses multiple layers of testing and validation before deployment to
    ```
    DATABASE_URL=your_database_url
    CODECOV_TOKEN=your_codecov_token (optional)
+   VERCEL_TOKEN=your_vercel_token
+   VERCEL_ORG_ID=your_org_id
+   VERCEL_PROJECT_ID=your_project_id
    ```
 
 ### Vercel Setup
@@ -50,23 +54,14 @@ This project uses multiple layers of testing and validation before deployment to
 
 3. **Build Settings**:
    Vercel will automatically use the `vercel.json` configuration which includes:
-   - Build Command: `npm run test:coverage && npm run build`
+   - Build Command: `prisma generate && next build`
    - Install Command: `npm ci`
 
-### Advanced Vercel Integration (Optional)
-
-For more control over deployments, add these secrets to GitHub:
-
-```
-VERCEL_TOKEN=your_vercel_token
-VERCEL_ORG_ID=your_org_id
-VERCEL_PROJECT_ID=your_project_id
-```
-
-Get these from:
-- **Token**: Vercel Dashboard → Settings → Tokens
-- **Org ID**: Vercel Dashboard → Settings → General
-- **Project ID**: Project Settings → General
+4. **Get Vercel Integration Secrets**:
+   Required for GitHub Actions deployment:
+   - **Token**: Vercel Dashboard → Settings → Tokens
+   - **Org ID**: Vercel Dashboard → Settings → General  
+   - **Project ID**: Project Settings → General
 
 ## 📋 Available Scripts
 
