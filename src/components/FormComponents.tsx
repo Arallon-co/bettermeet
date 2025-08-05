@@ -64,6 +64,7 @@ interface ValidatedInputProps {
   disabled?: boolean;
   className?: string;
   errorMessage?: string;
+  description?: string;
   isInvalid?: boolean;
 }
 
@@ -78,6 +79,7 @@ export function ValidatedInput({
   disabled = false,
   className = '',
   errorMessage,
+  description,
   isInvalid,
 }: ValidatedInputProps) {
   const [error, setError] = React.useState<string | null>(null);
@@ -114,6 +116,7 @@ export function ValidatedInput({
       isDisabled={disabled}
       isInvalid={isFieldInvalid}
       errorMessage={error || errorMessage}
+      description={description}
       className={className}
       variant="bordered"
     />
@@ -178,7 +181,9 @@ export function SubmitButton({
 }: SubmitButtonProps) {
   return (
     <Button
+      type="submit"
       color="primary"
+      size="lg"
       onPress={onPress}
       isLoading={isLoading}
       isDisabled={disabled}

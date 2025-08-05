@@ -1,27 +1,34 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
+  Select,
+  SelectItem,
   Input,
   Button,
   Chip,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
+  Tooltip,
 } from '@nextui-org/react';
 import {
   ClockIcon,
   GlobeAltIcon,
-  ChevronDownIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
-import { formatInTimeZone } from 'date-fns-tz';
+import {
+  detectUserTimezone,
+  searchTimezones,
+  getCommonTimezones,
+  formatTimeForLocale,
+} from '@/lib/timezone';
 
 interface TimezoneSelectorProps {
-  value: string;
+  value?: string;
   onChange: (timezone: string) => void;
   label?: string;
+  placeholder?: string;
   showCurrentTime?: boolean;
   isRequired?: boolean;
+  isDisabled?: boolean;
   className?: string;
 }
 
@@ -29,108 +36,58 @@ export function TimezoneSelector({
   value,
   onChange,
   label = 'Timezone',
+  placeholder = 'Select timezone...',
   showCurrentTime = false,
   isRequired = false,
+  isDisabled = false,
   className = '',
 }: TimezoneSelectorProps) {
-  const [currentTimezone, setCurrentTimezone] = useState<string>('');
+  const [detectedTimezone, setDetectedTimezone] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  // Common timezones with their display names
-  const timezones = useMemo(
-    () => [
-      { value: 'America/New_York', label: 'Eastern Time (ET)' },
-      { value: 'America/Chicago', label: 'Central Time (CT)' },
-      { value: 'America/Denver', label: 'Mountain Time (MT)' },
-      { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-      { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
-      { value: 'Pacific/Honolulu', label: 'Hawaii Time (HST)' },
-      { value: 'Europe/London', label: 'Greenwich Mean Time (GMT)' },
-      { value: 'Europe/Paris', label: 'Central European Time (CET)' },
-      { value: 'Europe/Berlin', label: 'Central European Time (CET)' },
-      { value: 'Europe/Moscow', label: 'Moscow Time (MSK)' },
-      { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
-      { value: 'Asia/Shanghai', label: 'China Standard Time (CST)' },
-      { value: 'Asia/Kolkata', label: 'India Standard Time (IST)' },
-      { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST)' },
-      { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' },
-      { value: 'Australia/Perth', label: 'Australian Western Time (AWT)' },
-      { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)' },
-    ],
-    []
-  );
-
-  // Filter timezones based on search query
-  const filteredTimezones = useMemo(() => {
-    if (!searchQuery) return timezones;
-
-    return timezones.filter(
-      (tz) =>
-        tz.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tz.value.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [timezones, searchQuery]);
+  const [timezones, setTimezones] = useState(getCommonTimezones());
 
   // Detect user's timezone on component mount
   useEffect(() => {
-    try {
-      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      setCurrentTimezone(userTimezone);
+    const detected = detectUserTimezone();
+    setDetectedTimezone(detected);
 
-      // Auto-select user's timezone if no timezone is selected
-      if (!value && userTimezone) {
-        onChange(userTimezone);
-      }
-    } catch (error) {
-      console.warn('Could not detect user timezone:', error);
+    // Auto-select detected timezone if no value is provided
+    if (!value && detected) {
+      onChange(detected);
     }
   }, [value, onChange]);
 
-  // Get current time in selected timezone
-  const currentTimeInTimezone = useMemo(() => {
-    if (!value) return '';
-
-    try {
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: value,
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        timeZoneName: 'short',
-      });
-      return formatter.format(now);
-    } catch (error) {
-      console.warn('Error formatting time:', error);
-      return '';
-    }
-  }, [value]);
-
-  // Get timezone display name
-  const getTimezoneDisplayName = (timezoneValue: string) => {
-    const timezone = timezones.find((tz) => tz.value === timezoneValue);
-    return timezone ? timezone.label : timezoneValue;
-  };
-
-  const handleTimezoneSelect = (timezoneValue: string) => {
-    onChange(timezoneValue);
-    setIsOpen(false);
-    setSearchQuery('');
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (open) {
-      // Focus search input when opening
-      setTimeout(() => {
-        searchRef.current?.focus();
-      }, 100);
+  // Update timezones based on search query
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const filtered = searchTimezones(searchQuery, 20);
+      setTimezones(filtered);
     } else {
+      setTimezones(getCommonTimezones());
+    }
+  }, [searchQuery]);
+
+  const handleSelectionChange = (keys: any) => {
+    const selectedKey = Array.from(keys)[0] as string;
+    if (selectedKey) {
+      onChange(selectedKey);
+    }
+  };
+
+  const handleAutoDetect = () => {
+    if (detectedTimezone) {
+      onChange(detectedTimezone);
       setSearchQuery('');
     }
   };
+
+  const selectedTimezone = timezones.find((tz) => tz.value === value);
+  const currentTime = value ? formatTimeForLocale(new Date(), value) : '';
+
+  const showAutoDetectButton = detectedTimezone && detectedTimezone !== value;
+  const detectedTimezoneInfo = timezones.find(
+    (tz) => tz.value === detectedTimezone
+  );
 
   return (
     <div className={`space-y-3 ${className}`}>
@@ -142,101 +99,72 @@ export function TimezoneSelector({
         </label>
       </div>
 
-      <Popover
-        isOpen={isOpen}
-        onOpenChange={handleOpenChange}
-        placement="bottom-start"
-        showArrow={false}
-      >
-        <PopoverTrigger>
-          <Button
-            variant="bordered"
-            className="w-full justify-between"
-            endContent={<ChevronDownIcon className="w-4 h-4" />}
-            startContent={<ClockIcon className="w-4 h-4 text-foreground-400" />}
-          >
-            {value ? getTimezoneDisplayName(value) : 'Select timezone'}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 p-0">
-          <div className="p-4">
-            <Input
-              ref={searchRef}
-              placeholder="Search timezones..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-3"
-              size="sm"
-              startContent={
-                <ClockIcon className="w-4 h-4 text-foreground-400" />
-              }
-            />
+      <div className="space-y-2">
+        <Input
+          placeholder="Search timezones..."
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          startContent={
+            <MagnifyingGlassIcon className="w-4 h-4 text-foreground-400" />
+          }
+          size="sm"
+          isDisabled={isDisabled}
+        />
 
-            <div className="max-h-60 overflow-y-auto space-y-1">
-              {filteredTimezones.map((timezone) => (
-                <button
-                  key={timezone.value}
-                  onClick={() => handleTimezoneSelect(timezone.value)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors hover:bg-foreground-100 ${
-                    value === timezone.value
-                      ? 'bg-primary-50 border border-primary-200'
-                      : ''
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">
-                      {timezone.label}
-                    </span>
-                    <span className="text-xs text-foreground-500">
-                      {timezone.value}
-                    </span>
-                  </div>
-                </button>
-              ))}
+        <Select
+          placeholder={placeholder}
+          selectedKeys={value ? new Set([value]) : new Set()}
+          onSelectionChange={handleSelectionChange}
+          startContent={<ClockIcon className="w-4 h-4 text-foreground-400" />}
+          isDisabled={isDisabled}
+        >
+          {timezones.map((timezone) => (
+            <SelectItem
+              key={timezone.value}
+              value={timezone.value}
+              textValue={timezone.label}
+            >
+              <div className="flex flex-col">
+                <span className="font-medium">{timezone.label}</span>
+                <span className="text-xs text-foreground-500">
+                  {timezone.value}
+                </span>
+              </div>
+            </SelectItem>
+          ))}
+        </Select>
+      </div>
 
-              {filteredTimezones.length === 0 && (
-                <div className="text-center py-4 text-foreground-500 text-sm">
-                  No timezones found
-                </div>
-              )}
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+      {showCurrentTime && value && currentTime && (
+        <Chip
+          color="primary"
+          variant="flat"
+          size="sm"
+          startContent={<ClockIcon className="w-3 h-3" />}
+        >
+          {currentTime}
+        </Chip>
+      )}
 
-      {showCurrentTime && value && currentTimeInTimezone && (
-        <div className="flex items-center gap-2">
-          <Chip
-            color="primary"
-            variant="flat"
-            size="sm"
-            startContent={<ClockIcon className="w-3 h-3" />}
-          >
-            Current time: {currentTimeInTimezone}
-          </Chip>
+      {selectedTimezone && (
+        <div className="text-sm text-foreground-600">
+          <div>Selected: {selectedTimezone.label.split(' (')[0]}</div>
+          {showCurrentTime && currentTime && (
+            <div>Current time: {currentTime}</div>
+          )}
         </div>
       )}
 
-      {currentTimezone && currentTimezone !== value && (
-        <div className="flex items-center gap-2">
-          <Chip
-            color="secondary"
-            variant="flat"
-            size="sm"
-            startContent={<GlobeAltIcon className="w-3 h-3" />}
-          >
-            Your timezone: {getTimezoneDisplayName(currentTimezone)}
-          </Chip>
-          <Button
-            size="sm"
-            variant="bordered"
-            color="primary"
-            onPress={() => onChange(currentTimezone)}
-            className="text-xs"
-          >
-            Use Mine
-          </Button>
-        </div>
+      {showAutoDetectButton && detectedTimezoneInfo && (
+        <Button
+          size="sm"
+          variant="bordered"
+          color="primary"
+          onPress={handleAutoDetect}
+          startContent={<GlobeAltIcon className="w-3 h-3" />}
+        >
+          Use detected ({detectedTimezoneInfo.label.split(' (')[0]})
+        </Button>
       )}
     </div>
   );

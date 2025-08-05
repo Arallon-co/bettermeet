@@ -1,8 +1,14 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { useToast, ToastProvider } from '../ToastProvider';
 
-// Mock HeroUI components
-jest.mock('@heroui/react', () => ({
+// Mock NextUI components
+jest.mock('@nextui-org/react', () => ({
   Card: ({ children, className }: any) => (
     <div data-testid="toast-card" className={className}>
       {children}
@@ -190,7 +196,9 @@ describe('ToastProvider', () => {
     expect(screen.getByText('Success message')).toBeInTheDocument();
 
     // Fast-forward time
-    jest.advanceTimersByTime(5000);
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
 
     await waitFor(() => {
       expect(screen.queryByText('Success message')).not.toBeInTheDocument();

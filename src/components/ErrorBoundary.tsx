@@ -15,10 +15,11 @@ interface ErrorBoundaryState {
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
+  fallback?: React.ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-export default class ErrorBoundary extends React.Component<
+export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
@@ -34,6 +35,7 @@ export default class ErrorBoundary extends React.Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ error, errorInfo });
+    this.props.onError?.(error, errorInfo);
   }
 
   resetError = () => {
@@ -43,13 +45,7 @@ export default class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        const FallbackComponent = this.props.fallback;
-        return (
-          <FallbackComponent
-            error={this.state.error!}
-            resetError={this.resetError}
-          />
-        );
+        return this.props.fallback;
       }
 
       return (
@@ -117,10 +113,10 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
             <Button
               color="default"
               variant="bordered"
-              onPress={() => (window.location.href = '/')}
+              onPress={() => window.location.reload()}
               className="flex-1 min-h-[44px]"
             >
-              Go Home
+              Refresh Page
             </Button>
           </div>
         </CardBody>
@@ -151,10 +147,12 @@ export function ErrorDisplay({
   onRetry,
   onReset,
 }: {
-  error: Error;
+  error: string | Error;
   onRetry?: () => void;
   onReset?: () => void;
 }) {
+  const errorMessage = typeof error === 'string' ? error : error.message;
+
   return (
     <Card className="w-full">
       <CardBody className="text-center space-y-4">
@@ -167,8 +165,9 @@ export function ErrorDisplay({
             An error occurred
           </h3>
           <p className="text-sm text-foreground-600">
-            {error.message || 'Something went wrong. Please try again.'}
+            {errorMessage || 'Something went wrong. Please try again.'}
           </p>
+          <div>⚠️</div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
@@ -180,7 +179,7 @@ export function ErrorDisplay({
               startContent={<ArrowPathIcon className="w-4 h-4" />}
               className="flex-1 min-h-[44px]"
             >
-              Retry
+              Try Again
             </Button>
           )}
 
@@ -199,3 +198,4 @@ export function ErrorDisplay({
     </Card>
   );
 }
+export default ErrorBoundary;

@@ -41,20 +41,20 @@ const mockPollData: CreatePollRequest = {
   title: 'Team Meeting',
   description: 'Weekly team sync',
   organizerTimezone: 'America/New_York',
-  dates: ['2024-12-01', '2024-12-02'],
+  dates: ['2025-12-01', '2025-12-02'],
   timeSlots: [
     {
-      date: '2024-12-01',
+      date: '2025-12-01',
       startTime: '09:00',
       endTime: '10:00',
     },
     {
-      date: '2024-12-01',
+      date: '2025-12-01',
       startTime: '14:00',
       endTime: '15:00',
     },
     {
-      date: '2024-12-02',
+      date: '2025-12-02',
       startTime: '09:00',
       endTime: '10:00',
     },
@@ -66,32 +66,32 @@ const mockCreatedPoll: PollWithRelations = {
   title: 'Team Meeting',
   description: 'Weekly team sync',
   organizerTimezone: 'America/New_York',
-  createdAt: new Date('2024-01-01T10:00:00Z'),
-  updatedAt: new Date('2024-01-01T10:00:00Z'),
+  createdAt: new Date('2025-01-01T10:00:00Z'),
+  updatedAt: new Date('2025-01-01T10:00:00Z'),
   timeSlots: [
     {
       id: 'slot_1',
       pollId: 'poll_123',
-      date: new Date('2024-12-01'),
+      date: new Date('2025-12-01'),
       startTime: '09:00',
       endTime: '10:00',
-      createdAt: new Date('2024-01-01T10:00:00Z'),
+      createdAt: new Date('2025-01-01T10:00:00Z'),
     },
     {
       id: 'slot_2',
       pollId: 'poll_123',
-      date: new Date('2024-12-01'),
+      date: new Date('2025-12-01'),
       startTime: '14:00',
       endTime: '15:00',
-      createdAt: new Date('2024-01-01T10:00:00Z'),
+      createdAt: new Date('2025-01-01T10:00:00Z'),
     },
     {
       id: 'slot_3',
       pollId: 'poll_123',
-      date: new Date('2024-12-02'),
+      date: new Date('2025-12-02'),
       startTime: '09:00',
       endTime: '10:00',
-      createdAt: new Date('2024-01-01T10:00:00Z'),
+      createdAt: new Date('2025-01-01T10:00:00Z'),
     },
   ],
   participants: [],
@@ -113,7 +113,7 @@ describe('POST /api/polls', () => {
         description: 'Weekly team sync',
         organizerTimezone: 'America/New_York',
         shareUrl: 'https://bettermeet.example.com/poll/poll_123',
-        createdAt: '2024-01-01T10:00:00.000Z',
+        createdAt: '2025-01-01T10:00:00.000Z',
       });
 
       expect(mockPollRepository.createPoll).toHaveBeenCalledWith(mockPollData);
@@ -197,7 +197,7 @@ describe('POST /api/polls', () => {
         ...mockPollData,
         timeSlots: [
           {
-            date: '2024-12-01',
+            date: '2025-12-01',
             startTime: '25:00', // Invalid hour
             endTime: '10:00',
           },
@@ -217,7 +217,7 @@ describe('POST /api/polls', () => {
         ...mockPollData,
         timeSlots: [
           {
-            date: '2024-12-01',
+            date: '2025-12-01',
             startTime: '15:00',
             endTime: '14:00', // End before start
           },
@@ -277,7 +277,7 @@ describe('POST /api/polls', () => {
       const invalidData = {
         ...mockPollData,
         timeSlots: Array.from({ length: 101 }, (_, i) => ({
-          date: '2024-12-01',
+          date: '2025-12-01',
           startTime: '09:00',
           endTime: '10:00',
         })),
@@ -423,8 +423,8 @@ describe('POST /api/polls', () => {
 
     it('should handle maximum allowed dates', async () => {
       const maxDates = Array.from({ length: 30 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() + i + 1);
+        const date = new Date('2025-12-01');
+        date.setDate(date.getDate() + i);
         return date.toISOString().split('T')[0];
       });
 
@@ -448,8 +448,8 @@ describe('POST /api/polls', () => {
 
     it('should reject more than 30 dates', async () => {
       const tooManyDates = Array.from({ length: 31 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() + i + 1);
+        const date = new Date('2025-12-01');
+        date.setDate(date.getDate() + i);
         return date.toISOString().split('T')[0];
       });
 

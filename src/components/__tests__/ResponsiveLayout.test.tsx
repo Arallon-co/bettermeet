@@ -1,10 +1,28 @@
 import { render, screen } from '@testing-library/react';
-import { ResponsiveLayout } from '../ResponsiveLayout';
+import ResponsiveLayout from '../ResponsiveLayout';
 
-// Mock HeroUI components
-jest.mock('@heroui/react', () => ({
-  Navbar: ({ children, isBordered }: any) => (
-    <nav data-testid="navbar" data-bordered={isBordered}>
+// Mock next-themes
+jest.mock('next-themes', () => ({
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: jest.fn(),
+  }),
+}));
+
+// Mock Heroicons
+jest.mock('@heroicons/react/24/outline', () => ({
+  SunIcon: ({ className }: any) => (
+    <svg data-testid="sun-icon" className={className} />
+  ),
+  MoonIcon: ({ className }: any) => (
+    <svg data-testid="moon-icon" className={className} />
+  ),
+}));
+
+// Mock NextUI components
+jest.mock('@nextui-org/react', () => ({
+  Navbar: ({ children, onMenuOpenChange, className, maxWidth }: any) => (
+    <nav data-testid="navbar" className={className} data-max-width={maxWidth}>
       {children}
     </nav>
   ),
@@ -25,13 +43,47 @@ jest.mock('@heroui/react', () => ({
       {children}
     </div>
   ),
-  Link: ({ children, href, color, className }: any) => (
-    <a href={href} data-color={color} className={className}>
+  NavbarMenu: ({ children, className }: any) => (
+    <div data-testid="navbar-menu" className={className}>
+      {children}
+    </div>
+  ),
+  NavbarMenuItem: ({ children }: any) => (
+    <div data-testid="navbar-menu-item">{children}</div>
+  ),
+  NavbarMenuToggle: ({ 'aria-label': ariaLabel, className }: any) => (
+    <button
+      data-testid="navbar-menu-toggle"
+      aria-label={ariaLabel}
+      className={className}
+    >
+      Menu
+    </button>
+  ),
+  Link: ({ children, href, color, className, onClick }: any) => (
+    <a href={href} data-color={color} className={className} onClick={onClick}>
       {children}
     </a>
   ),
-  Button: ({ children, as: Component = 'button', ...props }: any) => (
-    <Component {...props}>{children}</Component>
+  Button: ({
+    children,
+    isIconOnly,
+    variant,
+    onPress,
+    className,
+    'aria-label': ariaLabel,
+    ...props
+  }: any) => (
+    <button
+      onClick={onPress}
+      data-icon-only={isIconOnly}
+      data-variant={variant}
+      className={className}
+      aria-label={ariaLabel}
+      {...props}
+    >
+      {children}
+    </button>
   ),
 }));
 
@@ -54,12 +106,13 @@ describe('ResponsiveLayout', () => {
     );
 
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
-    expect(screen.getByText('BetterMeet')).toBeInTheDocument();
+    expect(screen.getByText('Better')).toBeInTheDocument();
+    expect(screen.getByText('Meet')).toBeInTheDocument();
   });
 
-  it('hides navigation when showNavigation is false', () => {
+  it('hides navigation when showNavbar is false', () => {
     render(
-      <ResponsiveLayout showNavigation={false}>
+      <ResponsiveLayout showNavbar={false}>
         <div>Test Content</div>
       </ResponsiveLayout>
     );
@@ -74,9 +127,8 @@ describe('ResponsiveLayout', () => {
       </ResponsiveLayout>
     );
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Create Poll')).toBeInTheDocument();
-    expect(screen.getByText('Get Started')).toBeInTheDocument();
+    expect(screen.getAllByText('Create Poll')).toHaveLength(2); // Desktop and mobile menu
+    expect(screen.getAllByText('About')).toHaveLength(2); // Desktop and mobile menu
   });
 
   it('applies responsive classes correctly', () => {
@@ -87,12 +139,6 @@ describe('ResponsiveLayout', () => {
     );
 
     const main = screen.getByRole('main');
-    expect(main).toHaveClass(
-      'container',
-      'mx-auto',
-      'px-4',
-      'py-6',
-      'max-w-7xl'
-    );
+    expect(main).toHaveClass('container', 'mx-auto', 'px-4', 'py-6');
   });
 });

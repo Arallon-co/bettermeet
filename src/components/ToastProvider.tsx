@@ -2,6 +2,19 @@
 
 import React, { createContext, useContext, useCallback } from 'react';
 
+interface ToastAction {
+  label: string;
+  onAction: () => void;
+}
+
+interface ToastOptions {
+  type: 'success' | 'error' | 'warning' | 'info';
+  message: string;
+  title?: string;
+  action?: ToastAction;
+  duration?: number;
+}
+
 interface ToastContextType {
   showToast: (
     message: string,
@@ -11,6 +24,11 @@ interface ToastContextType {
   showError: (message: string) => void;
   showWarning: (message: string) => void;
   showInfo: (message: string) => void;
+  success: (message: string) => void;
+  error: (message: string) => void;
+  warning: (message: string) => void;
+  info: (message: string) => void;
+  addToast: (options: ToastOptions) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -28,21 +46,41 @@ interface ToastProviderProps {
 }
 
 export function ToastProvider({ children }: ToastProviderProps) {
+  const [toasts, setToasts] = React.useState<
+    Array<ToastOptions & { id: string }>
+  >([]);
+
   const showToast = useCallback(
     (
       message: string,
       type: 'success' | 'error' | 'warning' | 'info' = 'info'
     ) => {
-      // For now, use alert as fallback
-      // TODO: Implement proper toast system when NextUI toast is available
+      const id = Math.random().toString(36).substr(2, 9);
+      const toast = { id, type, message, duration: 5000 };
+      setToasts((prev) => [...prev, toast]);
 
-      // Show alert for errors
-      if (type === 'error') {
-        alert(`Error: ${message}`);
-      }
+      // Auto-remove after duration
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, toast.duration);
     },
     []
   );
+
+  const addToast = useCallback((options: ToastOptions) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const toast = { id, ...options, duration: options.duration || 5000 };
+    setToasts((prev) => [...prev, toast]);
+
+    // Auto-remove after duration
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, toast.duration);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const showSuccess = useCallback(
     (message: string) => {
@@ -78,10 +116,68 @@ export function ToastProvider({ children }: ToastProviderProps) {
     showError,
     showWarning,
     showInfo,
+    success: showSuccess,
+    error: showError,
+    warning: showWarning,
+    info: showInfo,
+    addToast,
+  };
+
+  const getToastIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return '✅';
+      case 'error':
+        return '❌';
+      case 'warning':
+        return '⚠️';
+      case 'info':
+        return 'ℹ️';
+      default:
+        return 'ℹ️';
+    }
   };
 
   return (
-    <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
+    <ToastContext.Provider value={value}>
+      {children}
+      <div className="fixed top-4 right-4 z-50 space-y-2">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className="bg-white border rounded-lg shadow-lg p-4 min-w-[300px]"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-3">
+                <span className="text-lg">{getToastIcon(toast.type)}</span>
+                <div className="flex-1">
+                  {toast.title && (
+                    <h4 className="font-semibold text-gray-900 mb-1">
+                      {toast.title}
+                    </h4>
+                  )}
+                  <p className="text-gray-700">{toast.message}</p>
+                  {toast.action && (
+                    <button
+                      onClick={toast.action.onAction}
+                      className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      {toast.action.label}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="text-gray-400 hover:text-gray-600 ml-4"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
   );
 }
 

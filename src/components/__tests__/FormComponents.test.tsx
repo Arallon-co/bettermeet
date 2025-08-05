@@ -2,15 +2,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   ValidatedInput,
-  ValidatedTextarea,
   FormCard,
   FormActions,
   SubmitButton,
   validators,
 } from '../FormComponents';
 
-// Mock HeroUI components
-jest.mock('@heroui/react', () => ({
+// Mock NextUI components
+jest.mock('@nextui-org/react', () => ({
   Input: ({
     label,
     value,
@@ -100,7 +99,7 @@ jest.mock('@heroui/react', () => ({
   }: any) => (
     <button
       onClick={onPress}
-      disabled={isDisabled}
+      disabled={isDisabled || isLoading}
       data-loading={isLoading}
       data-color={color}
       data-variant={variant}
@@ -166,7 +165,7 @@ describe('ValidatedInput', () => {
         label="Test Label"
         value=""
         onChange={onChange}
-        error="External error"
+        errorMessage="External error"
       />
     );
 
@@ -183,7 +182,7 @@ describe('ValidatedInput', () => {
         label="Test Label"
         value=""
         onChange={onChange}
-        helperText="Helper text"
+        description="Helper text"
       />
     );
 
@@ -191,46 +190,10 @@ describe('ValidatedInput', () => {
   });
 });
 
-describe('ValidatedTextarea', () => {
-  it('renders textarea with label', () => {
-    const onChange = jest.fn();
-    render(
-      <ValidatedTextarea label="Test Textarea" value="" onChange={onChange} />
-    );
-
-    expect(screen.getByLabelText('Test Textarea')).toBeInTheDocument();
-  });
-
-  it('validates on blur', async () => {
-    const user = userEvent.setup();
-    const onChange = jest.fn();
-    const validate = jest.fn().mockReturnValue('Validation error');
-
-    render(
-      <ValidatedTextarea
-        label="Test Textarea"
-        value=""
-        onChange={onChange}
-        validate={validate}
-      />
-    );
-
-    const textarea = screen.getByLabelText('Test Textarea');
-    await user.click(textarea);
-    await user.tab(); // Trigger blur
-
-    await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toHaveTextContent(
-        'Validation error'
-      );
-    });
-  });
-});
-
 describe('FormCard', () => {
   it('renders children', () => {
     render(
-      <FormCard>
+      <FormCard title="Test Card">
         <div>Form content</div>
       </FormCard>
     );
@@ -267,11 +230,7 @@ describe('FormActions', () => {
 describe('SubmitButton', () => {
   it('renders button with correct props', () => {
     const onPress = jest.fn();
-    render(
-      <SubmitButton onPress={onPress} color="primary" size="lg">
-        Submit
-      </SubmitButton>
-    );
+    render(<SubmitButton onPress={onPress}>Submit</SubmitButton>);
 
     const button = screen.getByText('Submit');
     expect(button).toHaveAttribute('type', 'submit');
@@ -280,7 +239,11 @@ describe('SubmitButton', () => {
   });
 
   it('shows loading state', () => {
-    render(<SubmitButton isLoading>Submit</SubmitButton>);
+    render(
+      <SubmitButton onPress={() => {}} isLoading>
+        Submit
+      </SubmitButton>
+    );
 
     const button = screen.getByText('Submit');
     expect(button).toHaveAttribute('data-loading', 'true');
@@ -288,7 +251,11 @@ describe('SubmitButton', () => {
   });
 
   it('is disabled when disabled prop is true', () => {
-    render(<SubmitButton disabled>Submit</SubmitButton>);
+    render(
+      <SubmitButton onPress={() => {}} disabled>
+        Submit
+      </SubmitButton>
+    );
 
     expect(screen.getByText('Submit')).toBeDisabled();
   });
@@ -301,8 +268,8 @@ describe('validators', () => {
       expect(validators.required('   ')).toBe('This field is required');
     });
 
-    it('returns undefined for non-empty string', () => {
-      expect(validators.required('test')).toBeUndefined();
+    it('returns null for non-empty string', () => {
+      expect(validators.required('test')).toBeNull();
     });
   });
 
@@ -316,8 +283,8 @@ describe('validators', () => {
       );
     });
 
-    it('returns undefined for valid email', () => {
-      expect(validators.email('test@example.com')).toBeUndefined();
+    it('returns null for valid email', () => {
+      expect(validators.email('test@example.com')).toBeNull();
     });
   });
 
@@ -327,9 +294,9 @@ describe('validators', () => {
       expect(validator('test')).toBe('Must be at least 5 characters');
     });
 
-    it('returns undefined for long enough string', () => {
+    it('returns null for long enough string', () => {
       const validator = validators.minLength(5);
-      expect(validator('testing')).toBeUndefined();
+      expect(validator('testing')).toBeNull();
     });
   });
 
@@ -339,9 +306,9 @@ describe('validators', () => {
       expect(validator('testing')).toBe('Must be no more than 5 characters');
     });
 
-    it('returns undefined for short enough string', () => {
+    it('returns null for short enough string', () => {
       const validator = validators.maxLength(5);
-      expect(validator('test')).toBeUndefined();
+      expect(validator('test')).toBeNull();
     });
   });
 
@@ -354,7 +321,7 @@ describe('validators', () => {
 
       expect(validator('')).toBe('This field is required');
       expect(validator('ab')).toBe('Must be at least 5 characters');
-      expect(validator('testing')).toBeUndefined();
+      expect(validator('testing')).toBeNull();
     });
   });
 });

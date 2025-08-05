@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary, ErrorDisplay } from '../ErrorBoundary';
 
-// Mock HeroUI components
-jest.mock('@heroui/react', () => ({
+// Mock NextUI components
+jest.mock('@nextui-org/react', () => ({
   Card: ({ children, className }: any) => (
     <div data-testid="card" className={className}>
       {children}
@@ -18,10 +18,31 @@ jest.mock('@heroui/react', () => ({
       {children}
     </div>
   ),
-  Button: ({ children, onPress, color, variant }: any) => (
+  Button: ({ children, onPress, color, variant, startContent }: any) => (
     <button onClick={onPress} data-color={color} data-variant={variant}>
+      {startContent}
       {children}
     </button>
+  ),
+  Chip: ({ children, color, variant, size }: any) => (
+    <span
+      data-testid="chip"
+      data-color={color}
+      data-variant={variant}
+      data-size={size}
+    >
+      {children}
+    </span>
+  ),
+}));
+
+// Mock Heroicons
+jest.mock('@heroicons/react/24/outline', () => ({
+  ExclamationTriangleIcon: ({ className }: any) => (
+    <svg data-testid="exclamation-triangle-icon" className={className} />
+  ),
+  ArrowPathIcon: ({ className }: any) => (
+    <svg data-testid="arrow-path-icon" className={className} />
   ),
 }));
 

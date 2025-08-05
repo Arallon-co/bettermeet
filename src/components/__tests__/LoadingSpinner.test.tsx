@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { LoadingSpinner, FullPageLoadingSpinner } from '../LoadingSpinner';
+import LoadingSpinner, { FullScreenLoader } from '../LoadingSpinner';
 
-// Mock HeroUI Spinner component
-jest.mock('@heroui/react', () => ({
+// Mock NextUI Spinner component
+jest.mock('@nextui-org/react', () => ({
   Spinner: ({ size, color }: any) => (
     <div data-testid="spinner" data-size={size} data-color={color} />
   ),
@@ -10,7 +10,7 @@ jest.mock('@heroui/react', () => ({
 
 describe('LoadingSpinner', () => {
   it('renders with default props', () => {
-    render(<LoadingSpinner />);
+    render(<LoadingSpinner text="Loading..." />);
 
     const spinner = screen.getByTestId('spinner');
     expect(spinner).toBeInTheDocument();
@@ -24,7 +24,7 @@ describe('LoadingSpinner', () => {
       <LoadingSpinner
         size="lg"
         color="secondary"
-        label="Please wait..."
+        text="Please wait..."
         className="custom-class"
       />
     );
@@ -35,17 +35,17 @@ describe('LoadingSpinner', () => {
     expect(screen.getByText('Please wait...')).toBeInTheDocument();
   });
 
-  it('renders without label when label is empty', () => {
-    render(<LoadingSpinner label="" />);
+  it('renders without text when text is empty', () => {
+    render(<LoadingSpinner text="" />);
 
     expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
 });
 
-describe('FullPageLoadingSpinner', () => {
-  it('renders full page spinner with default label', () => {
-    render(<FullPageLoadingSpinner />);
+describe('FullScreenLoader', () => {
+  it('renders full screen loader with default text', () => {
+    render(<FullScreenLoader />);
 
     const container =
       screen.getByTestId('spinner').parentElement?.parentElement;
@@ -59,8 +59,8 @@ describe('FullPageLoadingSpinner', () => {
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders with custom label', () => {
-    render(<FullPageLoadingSpinner label="Saving changes..." />);
+  it('renders with custom text', () => {
+    render(<FullScreenLoader text="Saving changes..." />);
 
     expect(screen.getByText('Saving changes...')).toBeInTheDocument();
   });

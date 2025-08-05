@@ -37,8 +37,8 @@ jest.mock('@/lib/timezone', () => ({
   formatTimeForLocale: jest.fn(() => '12:00 PM'),
 }));
 
-// Mock HeroUI components
-jest.mock('@heroui/react', () => ({
+// Mock NextUI components
+jest.mock('@nextui-org/react', () => ({
   Select: ({
     children,
     onSelectionChange,
@@ -46,46 +46,69 @@ jest.mock('@heroui/react', () => ({
     selectedKeys,
     startContent,
     isDisabled,
-  }: any) => (
-    <div data-testid="select">
-      <div data-testid="select-placeholder">{placeholder}</div>
-      {startContent && (
-        <div data-testid="select-start-content">{startContent}</div>
-      )}
-      <select
-        data-testid="select-input"
-        onChange={(e) => onSelectionChange?.(new Set([e.target.value]))}
-        value={selectedKeys?.[0] || ''}
-        disabled={isDisabled}
-      >
-        <option value="">Select...</option>
-        {children}
-      </select>
-    </div>
-  ),
+    ...props
+  }: any) => {
+    // Filter out NextUI-specific props
+    const { variant, color, size, radius, labelPlacement, ...domProps } = props;
+    return (
+      <div data-testid="select">
+        <div data-testid="select-placeholder">{placeholder}</div>
+        {startContent && (
+          <div data-testid="select-start-content">{startContent}</div>
+        )}
+        <select
+          data-testid="select-input"
+          onChange={(e) => onSelectionChange?.(new Set([e.target.value]))}
+          value={selectedKeys?.[0] || ''}
+          disabled={isDisabled}
+          {...domProps}
+        >
+          <option value="">Select...</option>
+          {children}
+        </select>
+      </div>
+    );
+  },
   SelectItem: ({ children, value, textValue }: any) => (
     <option value={value} data-testid={`select-item-${value}`}>
       {textValue || (typeof children === 'string' ? children : 'Option')}
     </option>
   ),
-  Input: ({ placeholder, value, onValueChange, startContent }: any) => (
-    <div data-testid="input">
-      {startContent && (
-        <div data-testid="input-start-content">{startContent}</div>
-      )}
-      <input
-        data-testid="input-field"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onValueChange?.(e.target.value)}
-      />
-    </div>
-  ),
-  Button: ({ children, onPress, ...props }: any) => (
-    <button data-testid="button" onClick={onPress} {...props}>
-      {children}
-    </button>
-  ),
+  Input: ({
+    placeholder,
+    value,
+    onValueChange,
+    startContent,
+    ...props
+  }: any) => {
+    // Filter out NextUI-specific props
+    const { variant, color, size, radius, labelPlacement, ...domProps } = props;
+    return (
+      <div data-testid="input">
+        {startContent && (
+          <div data-testid="input-start-content">{startContent}</div>
+        )}
+        <input
+          data-testid="input-field"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onValueChange?.(e.target.value)}
+          {...domProps}
+        />
+      </div>
+    );
+  },
+  Button: ({ children, onPress, startContent, endContent, ...props }: any) => {
+    // Filter out NextUI-specific props
+    const { variant, color, size, radius, fullWidth, ...domProps } = props;
+    return (
+      <button data-testid="button" onClick={onPress} {...domProps}>
+        {startContent}
+        {children}
+        {endContent}
+      </button>
+    );
+  },
   Chip: ({ children }: any) => <span data-testid="chip">{children}</span>,
   Tooltip: ({ children, content }: any) => (
     <div data-testid="tooltip" title={content}>
@@ -203,7 +226,11 @@ describe('TimezoneSelector', () => {
 
   it('should display selected timezone information', () => {
     render(
-      <TimezoneSelector onChange={mockOnChange} value="America/New_York" />
+      <TimezoneSelector
+        onChange={mockOnChange}
+        value="America/New_York"
+        showCurrentTime={true}
+      />
     );
 
     expect(screen.getByText(/Selected: New York/)).toBeInTheDocument();

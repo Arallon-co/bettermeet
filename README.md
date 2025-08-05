@@ -101,14 +101,25 @@ The application uses PostgreSQL with the following main entities:
 - **Participants**: Users who respond to polls
 - **Availability**: Participant responses for each time slot
 
+## Deployment
+
+This project includes a comprehensive CI/CD pipeline with automated testing and deployment. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed setup instructions.
+
+### Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/bettermeet)
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+5. Ensure all tests pass (`npm test`)
+6. Run linting (`npm run lint`)
+7. Submit a pull request
+
+All pull requests are automatically tested via GitHub Actions before merge.
 
 ## License
 

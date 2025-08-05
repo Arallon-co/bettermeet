@@ -66,7 +66,7 @@ describe('PollRepository', () => {
     };
 
     it('should create a poll with time slots successfully', async () => {
-      mockWithTransaction.mockImplementation(async (callback) => {
+      mockWithTransaction.mockImplementation(async (callback: any) => {
         return callback({
           poll: {
             create: jest.fn().mockResolvedValue({
@@ -114,7 +114,7 @@ describe('PollRepository', () => {
     };
 
     it('should return poll when found', async () => {
-      mockPrisma.poll.findUnique.mockResolvedValue(mockPoll);
+      (mockPrisma.poll.findUnique as jest.Mock).mockResolvedValue(mockPoll);
 
       const result = await PollRepository.getPollById('poll-1');
 
@@ -136,7 +136,7 @@ describe('PollRepository', () => {
     });
 
     it('should return null when poll not found', async () => {
-      mockPrisma.poll.findUnique.mockResolvedValue(null);
+      (mockPrisma.poll.findUnique as jest.Mock).mockResolvedValue(null);
 
       const result = await PollRepository.getPollById('nonexistent');
 
@@ -144,7 +144,9 @@ describe('PollRepository', () => {
     });
 
     it('should throw database error when query fails', async () => {
-      mockPrisma.poll.findUnique.mockRejectedValue(new Error('Database error'));
+      (mockPrisma.poll.findUnique as jest.Mock).mockRejectedValue(
+        new Error('Database error')
+      );
 
       await expect(PollRepository.getPollById('poll-1')).rejects.toMatchObject({
         statusCode: 500,
@@ -198,7 +200,7 @@ describe('PollRepository', () => {
     };
 
     it('should update poll successfully', async () => {
-      mockPrisma.poll.update.mockResolvedValue(mockUpdatedPoll);
+      (mockPrisma.poll.update as jest.Mock).mockResolvedValue(mockUpdatedPoll);
 
       const result = await PollRepository.updatePoll('poll-1', {
         title: 'Updated Poll',
@@ -227,7 +229,9 @@ describe('PollRepository', () => {
     });
 
     it('should throw not found error when poll does not exist', async () => {
-      mockPrisma.poll.update.mockRejectedValue({ code: 'P2025' });
+      (mockPrisma.poll.update as jest.Mock).mockRejectedValue({
+        code: 'P2025',
+      });
 
       await expect(
         PollRepository.updatePoll('nonexistent', { title: 'Updated' })
@@ -240,7 +244,7 @@ describe('PollRepository', () => {
 
   describe('deletePoll', () => {
     it('should delete poll successfully', async () => {
-      mockPrisma.poll.delete.mockResolvedValue({} as any);
+      (mockPrisma.poll.delete as jest.Mock).mockResolvedValue({} as any);
 
       await PollRepository.deletePoll('poll-1');
 
@@ -250,7 +254,9 @@ describe('PollRepository', () => {
     });
 
     it('should throw not found error when poll does not exist', async () => {
-      mockPrisma.poll.delete.mockRejectedValue({ code: 'P2025' });
+      (mockPrisma.poll.delete as jest.Mock).mockRejectedValue({
+        code: 'P2025',
+      });
 
       await expect(
         PollRepository.deletePoll('nonexistent')
